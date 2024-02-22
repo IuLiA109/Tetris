@@ -16,20 +16,20 @@ int matrix[m][n];
 bool check_collision() {
     for (int i = 0; i < 4; i++) {
         if (c[i] < 0 || c[i] >= n || l[i] < 0 || l[i] >= m) return true;
-        else if (matrix[l[i]][c[i]] == 1) return true;
+        else if (matrix[l[i]][c[i]] !=0 ) return true;
     }
     return false;
 }
 
 int main()
 {
-    int move=0, first = 1;
-    bool rotate=0;
+    int move = 0, first = 1, color = 0, nform = 0;
+    bool rotate = 0;
 
     srand(time(0));
 
-    RenderWindow window(sf::VideoMode(576,800), "SFML works!");
-    
+    RenderWindow window(sf::VideoMode(576, 800), "SFML works!");
+
     Texture texture;
     if (!texture.loadFromFile("tetris_resurse/squares2.png")) {
         return EXIT_FAILURE;
@@ -37,12 +37,13 @@ int main()
 
     Sprite sprite;
     sprite.setTexture(texture);
-    IntRect textureRect(0, 0, 32,32); // Left, Top, Width, Height
-    sprite.setTextureRect(textureRect);
+    //IntRect textureRect(0, 0, 32,32); // Left, Top, Width, Height
+    //IntRect textureRect(30*5, 0, 32, 32);
+    //sprite.setTextureRect(textureRect);
     sprite.setPosition(100, 100);
 
     Clock clock;
-    float delay = 0.3, timer=0;
+    float delay = 0.3, timer = 0;
 
     while (window.isOpen())
     {
@@ -51,7 +52,7 @@ int main()
         timer += time;
 
         sf::Event event;
-        int no= 0;
+        int no = 0;
         while (window.pollEvent(event))
         {
             if (event.type == Event::Closed)
@@ -69,7 +70,7 @@ int main()
         }
 
         //move
-        for (int i = 0; i < 4; i++) 
+        for (int i = 0; i < 4; i++)
             c[i] += move;
 
         //rotate - the pivot will be forms[x][1]
@@ -89,16 +90,16 @@ int main()
                 l[i] = linit[i];
             }
         }
-        
-        if (first) {
-            int n = rand() % 6;
-            int color = rand() % 7;
+
+        /*if (first) {
+            nform = rand() % 6;
+            color = rand() % 5 + 1;
 
             for (int i = 0; i < 4; i++) {
-                l[i] = (forms[n][i] - 1) / 2;
-                c[i] = (forms[n][i] - 1) % 2;
+                l[i] = (forms[nform][i] - 1) / 2;
+                c[i] = (forms[nform][i] - 1) % 2;
             }
-        }
+        }*/
 
         if (timer > delay) {
             for (int i = 0; i < 4; i++) {
@@ -106,20 +107,30 @@ int main()
                 cinit[i] = c[i];
                 l[i]++;
             }
-           
+
             if (check_collision()) {
-                for (int i = 0; i < 4; i++) 
-                    matrix[linit[i]][cinit[i]] = 1;
-                
-                int n = rand() % 6;
-                int color = rand() % 7;
-                
+                for (int i = 0; i < 4; i++)
+                    matrix[linit[i]][cinit[i]] = color;
+
+                nform = rand() % 6;
+                color = rand() % 5 + 1;
+
                 for (int i = 0; i < 4; i++) {
-                    l[i] = (forms[n][i] - 1) / 2;
-                    c[i] = (forms[n][i] - 1) % 2;
+                    l[i] = (forms[nform][i] - 1) / 2;
+                    c[i] = (forms[nform][i] - 1) % 2;
                 }
             }
             timer = 0;
+        }
+
+        if (first) {
+            nform = rand() % 6;
+            color = rand() % 5 + 1;
+
+            for (int i = 0; i < 4; i++) {
+                l[i] = (forms[nform][i] - 1) / 2;
+                c[i] = (forms[nform][i] - 1) % 2;
+            }
         }
 
         move = 0;
@@ -128,16 +139,19 @@ int main()
 
         window.clear(Color::White);
 
-        for(int i = 0; i < m; i++)
+        for (int i = 0; i < m; i++) {
             for (int j = 0; j < n; j++) {
-                if (matrix[i][j]) {
+                if (matrix[i][j] != 0) {
+                    sprite.setTextureRect(IntRect(30 * matrix[i][j], 0, 32, 32));
                     sprite.setPosition(j * 32, i * 32);
                     window.draw(sprite);
                 }
             }
+        }
 
         for (int i = 0; i < 4; i++) {
-            sprite.setPosition(c[i]*32, l[i]*32);
+            sprite.setTextureRect(IntRect(30 * color, 0, 32, 32));
+            sprite.setPosition(c[i] * 32, l[i] * 32);
             window.draw(sprite);
         }
         window.display();
