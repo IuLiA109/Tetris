@@ -35,17 +35,17 @@ Game Over:
 ## Preview
 
 <p align="center">
-  <img width="318" alt="image" src="https://github.com/IuLiA109/tetris/assets/115582483/50563e9b-966d-4944-a514-28ba0fdf0a38">
+  <img width="400" alt="image" src="https://github.com/IuLiA109/tetris/assets/115582483/50563e9b-966d-4944-a514-28ba0fdf0a38">
 </p>
 
 
 <p align="center">
-  <img width="321" alt="image" src="https://github.com/IuLiA109/tetris/assets/115582483/5c5c1c28-1772-48fb-ac34-e5a95a45231e">
+  <img width="400" alt="image" src="https://github.com/IuLiA109/tetris/assets/115582483/5c5c1c28-1772-48fb-ac34-e5a95a45231e">
 </p>
 
 
 <p align="center">
-  <img width="313" alt="image" src="https://github.com/IuLiA109/tetris/assets/115582483/d14a428f-af46-408a-afdf-e63aef874989">
+  <img width="400" alt="image" src="https://github.com/IuLiA109/tetris/assets/115582483/d14a428f-af46-408a-afdf-e63aef874989">
 </p>
 
 
