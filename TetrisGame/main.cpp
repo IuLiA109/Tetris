@@ -8,8 +8,8 @@ using namespace sf;
 int forms[7][4] = { {0,2,4,6}, {4,1,3,5}, {0,2,4,5}, {0,2,1,3}, {0,2,3,5}, {2,1,3,5}, {2,4,1,3} };
 
 int l[4], c[4],linit[4], cinit[4]; // l ~ y/height   c ~ x/width
-const int n = 18; //nr of columns
-const int m = 20; //nr of lines
+const int n = 10; //nr of columns
+const int m = 18; //nr of lines
 int matrix[m][n];
 int points;
 
@@ -39,20 +39,19 @@ void init_game() {
 }
 
 enum app_state {
-
     playing,
     over
 };
 
 int main()
 {
-    int move = 0, first = 1, color = 0, nform = 0;
+    int move = 0, first = 1, color = 0, nform = 0, nextform = 0;
     bool rotate = 0;
 
     srand(time(0));
 
-    int window_w = (n + 2) * 32;
-    int window_h = 800;
+    int window_w = (n * 2) * 32;
+    int window_h = (m * 5 / 4) * 32;
     RenderWindow window(sf::VideoMode(window_w, window_h), "TETRIS");
 
     Texture texture;
@@ -60,12 +59,18 @@ int main()
         return EXIT_FAILURE;
     }
 
+    Texture white_block;
+    if (!white_block.loadFromFile("tetris_resurse/nextshape.png")) {
+        return EXIT_FAILURE;
+    }
+
     Sprite sprite;
     sprite.setTexture(texture);
-    //IntRect textureRect(0, 0, 32,32); // Left, Top, Width, Height
-    //IntRect textureRect(30*5, 0, 32, 32);
-    //sprite.setTextureRect(textureRect);
     sprite.setPosition(100, 100);
+
+    Sprite white_sprite;
+    white_sprite.setTexture(white_block);
+    white_sprite.setTextureRect(IntRect(1, 1, 38, 38));
 
     RectangleShape boarder;
     boarder.setSize(Vector2f(n*32-6, m*32-6));
@@ -87,7 +92,18 @@ int main()
     score.setString("SCORE: "+ to_string(points));
     score.setCharacterSize(20);
     score.setFillColor(Color::Black);
-    score.setPosition((n/2)*32,(m+2)*32);
+    score.setPosition((n * 3 / 2) * 32 + 16 , (m / 5) * 32 + 32);
+    FloatRect scoreBounds = score.getLocalBounds();
+    score.setOrigin(scoreBounds.left + scoreBounds.width / 2, scoreBounds.top + scoreBounds.height / 2);
+
+    Text next_form;
+    next_form.setFont(font);
+    next_form.setString("NEXT SHAPE:");
+    next_form.setCharacterSize(20);
+    next_form.setFillColor(Color::Black);
+    next_form.setPosition((n * 3 / 2) * 32 + 16, (m / 3) * 32);
+    FloatRect next_formBounds = next_form.getLocalBounds();
+    next_form.setOrigin(next_formBounds.left + next_formBounds.width / 2, next_formBounds.top + next_formBounds.height / 2);
 
     init_game();
 
@@ -98,23 +114,25 @@ int main()
     gameOver.setFillColor(Color::Black);
 
     FloatRect textBounds = gameOver.getLocalBounds();
-    gameOver.setOrigin(textBounds.left + textBounds.width / 2.0f,
-        textBounds.top + textBounds.height / 2.0f);
-    gameOver.setPosition(window.getSize().x / 2.0f, window.getSize().y / 2.0f - 25);
+    gameOver.setOrigin(textBounds.left + textBounds.width / 2, textBounds.top + textBounds.height / 2);
+    gameOver.setPosition(window.getSize().x / 2, window.getSize().y / 2 - 50);
 
     RectangleShape restart_button;
-    restart_button.setSize(Vector2f(100, 100));
-    restart_button.setPosition(100, 100);
-    restart_button.setFillColor(Color::Green);
+    restart_button.setSize(Vector2f(120, 65));
+    restart_button.setPosition(window.getSize().x / 2, window.getSize().y / 2 + window_h * 7 / 100);
+    restart_button.setFillColor(Color::White);
+    restart_button.setOutlineThickness(2);
+    restart_button.setOutlineColor(Color::Black);
+    Vector2f restart_button_size = restart_button.getSize();
+    restart_button.setOrigin(restart_button_size.x / 2, restart_button_size.y / 2);
 
-    Text buttonText("Restart", font, 24);
-    buttonText.setFillColor(sf::Color::White);
+
+    Text buttonText("Restart", font, 27);
+    buttonText.setFillColor(Color::Black);
 
     FloatRect buttonTextBounds = buttonText.getLocalBounds();
-    buttonText.setOrigin(buttonTextBounds.left + buttonTextBounds.width / 2.0f,
-        buttonTextBounds.top + buttonTextBounds.height / 2.0f);
-    buttonText.setPosition(restart_button.getPosition().x + restart_button.getSize().x / 2.0f,
-        restart_button.getPosition().y + restart_button.getSize().y / 2.0f);
+    buttonText.setOrigin(buttonTextBounds.left + buttonTextBounds.width / 2, buttonTextBounds.top + buttonTextBounds.height / 2);
+    buttonText.setPosition(restart_button.getPosition().x, restart_button.getPosition().y);
 
     app_state current_app_state = app_state::playing;
 
@@ -212,7 +230,9 @@ int main()
                     for (int i = 0; i < 4; i++)
                         matrix[linit[i]][cinit[i]] = color;
 
-                    nform = rand() % 6;
+                    //nform = rand() % 6;
+                    nform = nextform;
+                    nextform = rand() % 6;
                     color = (color + 1) % 5;
 
                     for (int i = 0; i < 4; i++) {
@@ -225,6 +245,7 @@ int main()
 
             if (first) {
                 nform = rand() % 6;
+                nextform = rand() % 6;
 
                 for (int i = 0; i < 4; i++) {
                     l[i] = forms[nform][i] / 2;
@@ -258,9 +279,15 @@ int main()
             first = 0;
             delay = 0.3;
 
+            if (game_over()) {
+                gameOver.setString("Game Over!\nScore: " + to_string(points));
+                current_app_state = app_state::over;
+            }
+
             window.clear(Color::White);
             window.draw(boarder);
             window.draw(score);
+            window.draw(next_form);
 
             for (int i = 0; i < m; i++) {
                 for (int j = 0; j < n; j++) {
@@ -277,12 +304,14 @@ int main()
                 sprite.setPosition(c[i] * 32 + 32, l[i] * 32 + 32);
                 window.draw(sprite);
             }
-            window.display();
 
-            if (game_over()) {
-                gameOver.setString("Game Over!\nScore: " + to_string(points));
-                current_app_state = app_state::over;
+            //next shape
+            for (int i = 0; i < 4; i++) {
+                white_sprite.setPosition(forms[nextform][i] % 2 * 36 + (n * 3 / 2 * 32), forms[nextform][i] / 2 * 36 + (m / 3 * 32) + 32);
+                window.draw(white_sprite);
             }
+
+            window.display();
         }
     }
 
